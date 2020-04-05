@@ -45,7 +45,7 @@ class ProductsAPI extends API
             return $this->response('Products generated.', 200);
         }
 
-        return $this->response($this->requestParams, 500);
+        return $this->response('Generation error', 404);
     }
 
     /**

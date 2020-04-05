@@ -12,7 +12,6 @@ class Order extends Model
     {
         $id = 0;
         $user_id = Request::getUserID();
-//        $products = implode(', ', $products);
 
         $this->db->beginTransaction();
 
@@ -27,6 +26,10 @@ class Order extends Model
 
         $cost = 0;
         foreach ($products as $product) {
+            if ((int)$product === 0) {
+                throw new UnexpectedValueException('ID of product must be integer');
+            }
+
             $res = $stmt->execute();
 
             if (!$res) {
@@ -112,21 +115,29 @@ class Order extends Model
         $cost = $this->getInt($cost);
 
         $sql = "
-            SELECT cost
+            SELECT cost, status
                 FROM `orders`
                 WHERE id = :id
         ";
         $stmt = $this->db->prepare($sql);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $res = $stmt->execute()->fetch(PDO::FETCH_NUM)[0];
+        $stmt->execute();
+        $res = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($cost !== $res) {
-            return false;
+        if ($res['cost'] != $cost || $res['status'] !== 'new') {
+            throw new UnexpectedValueException('Not equal cost or status of the order is paid');
         }
 
-        file_get_contents('https://ya.ru');
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET'
+            ]
+        ]);
+        file_get_contents('https://ya.ru', null, $context);
 
-        if (http_response_code() === 200) {
+        $status = explode(' ', $http_response_header[0])[1];
+
+        if ($status == 200) {
             return $this->changeStatus($id);
         }
 

@@ -18,6 +18,14 @@ class Request
     ];
 
     /**
+     * Подключённые классы API
+     */
+    const API_CLASSES = [
+        'products',
+        'orders',
+    ];
+
+    /**
      * ID юзера, запрашивающего API
      * @var int
      */
@@ -44,7 +52,7 @@ class Request
         $login = array_shift($this->requestUri);
 
         //Первые 2 элемента массива URI должны быть "api" и название таблицы
-        if ($api !== 'api' || !$apiName) {
+        if ($api !== 'api' || !in_array($apiName, self::API_CLASSES)) {
             throw new RuntimeException('API Not Found', 404);
         } elseif (!in_array($login, self::LOGINS)) {
             throw new AccessException('Invalid user', 403);

@@ -40,17 +40,17 @@ class OrdersAPI extends API
     public function createAction()
     {
         $order_id = 0;
-
         $products = $this->requestParams['products'] ?? '';
 
-        if ($products && $products !== []) {
+        if ($products) {
+            $products = explode(',', $products);
             $order_id = $this->model->createOrder($products);
         } else {
             throw new RuntimeException('Products for order not found!', 404);
         }
 
         if ($order_id) {
-            return $this->response(['id' => $order_id], 200);
+            return $this->response($order_id, 200);
         }
 
         return $this->response("Order not created", 500);
@@ -63,7 +63,7 @@ class OrdersAPI extends API
      */
     public function updateAction()
     {
-        $order_id = $this->requestParams['order_id'] ?? 0;
+        $order_id = $this->requestParams['order'] ?? 0;
         $cost = $this->requestParams['cost'] ?? 0;
 
         if ($this->model->payOrder($order_id, $cost)) {

@@ -24,7 +24,7 @@ class Product extends Model
         $file = fopen('files/products_list.csv', "r");
 
         while (($data = fgetcsv($file, 1000, ';')) !== false) {
-            $title = $data[rand(0, 4)];
+            $title = trim($data[rand(0, 4)]);
             $price = rand(50, 5000);
 
             $res = $stmt->execute();
